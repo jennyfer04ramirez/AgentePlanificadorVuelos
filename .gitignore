@@ -1,0 +1,78 @@
+##################################
+# 🧠 Sistema / Editor
+##################################
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.bak
+*.log
+
+.vscode/
+.idea/
+*.iml
+
+##################################
+# 🐍 Python
+##################################
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Cache y compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Paquetes
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+##################################
+# 🅰️ Angular / Node
+##################################
+# Dependencias
+node_modules/
+
+# Build Angular
+dist/
+out/
+.tmp/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+##################################
+# 🔐 Variables de entorno
+##################################
+.env
+.env.*
+!.env.example
+
+##################################
+# 🐳 Docker
+##################################
+*.pid
+docker-compose.override.yml
+
+##################################
+# 📦 Otros
+##################################
+coverage/
+.cache/

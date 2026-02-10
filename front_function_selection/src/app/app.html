@@ -1,78 +1,128 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center px-4">
-  <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8">
-
+<div class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="mx-auto max-w-3xl px-4 py-6">
     <!-- Header -->
-    <div class="text-center mb-6">
-      <h1 class="text-3xl font-bold text-slate-800">
-        Function Selection
-      </h1>
-      <p class="text-slate-500 mt-1">
-        Sistema de selección de funciones por embeddings 
-      </p>
-    </div>
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight">Flight Assistant</h1>
+        <p class="text-sm text-slate-400">
+          Session:
+          <span class="font-mono text-slate-300">
+            {{ sessionId ? sessionId : "— (nueva)" }}
+          </span>
+        </p>
+      </div>
 
-    <!-- Input -->
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-slate-600 mb-2">
-        Consulta del usuario
-      </label>
-      <textarea
-        [(ngModel)]="query"
-        rows="3"
-        placeholder="Ej: quiero un plan de 3 días en quito"
-        class="w-full resize-none rounded-xl border border-slate-300 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-      ></textarea>
-    </div>
-
-    <!-- Button -->
-    <button
-      (click)="search()"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2"
-    >
-      <span *ngIf="!loading">Seleccionar función</span>
-      <span *ngIf="loading">Analizando intención…</span>
-    </button>
-
-    <!-- Results -->
-    <div *ngIf="results.length > 0" class="mt-8">
-      <h2 class="text-lg font-semibold text-slate-700 mb-4">
-        Resultados (Top-K)
-      </h2>
-
-      <div class="space-y-3">
-        <div
-          *ngFor="let r of results; let i = index"
-          class="rounded-xl p-4 border transition"
-          [ngClass]="
-            i === 0
-              ? 'border-green-400 bg-green-50'
-              : 'border-slate-200 bg-slate-50'
-          "
+      <div class="flex gap-2">
+        <button
+          class="rounded-xl bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700"
+          (click)="resetSession()"
         >
-          <div class="flex items-center justify-between">
-            <div>
-              <p
-                class="font-semibold"
-                [ngClass]="i === 0 ? 'text-green-700' : 'text-slate-800'"
-              >
-                {{ r.name }}
-              </p>
-              <p class="text-sm text-slate-500">
-                Similitud: {{ r.score | number:'1.2-2' }}
-              </p>
-            </div>
+          Reiniciar
+        </button>
+      </div>
+    </div>
 
-            <!-- Badge -->
-            <span
-              *ngIf="i === 0"
-              class="text-xs font-semibold bg-green-600 text-white px-3 py-1 rounded-full"
+    <!-- Quick actions -->
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button
+        class="rounded-full bg-slate-800 px-3 py-1.5 text-sm hover:bg-slate-700"
+        (click)="quick('quiero reservar un vuelo')"
+      >
+        Reservar
+      </button>
+      <button
+        class="rounded-full bg-slate-800 px-3 py-1.5 text-sm hover:bg-slate-700"
+        (click)="quick('de quito a guayaquil')"
+      >
+        Quito → Guayaquil
+      </button>
+      <button
+        class="rounded-full bg-slate-800 px-3 py-1.5 text-sm hover:bg-slate-700"
+        (click)="quick('sí')"
+      >
+        Sí
+      </button>
+      <button
+        class="rounded-full bg-slate-800 px-3 py-1.5 text-sm hover:bg-slate-700"
+        (click)="quick('quiero cancelar un vuelo')"
+      >
+        Cancelar
+      </button>
+    </div>
+
+    <!-- Chat -->
+    <div
+      id="chat-scroll"
+      class="mt-4 h-[65vh] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900/40 p-4"
+    >
+      <div class="flex flex-col gap-3">
+        <ng-container *ngFor="let m of messages">
+          <div
+            class="flex"
+            [class.justify-end]="m.role === 'user'"
+            [class.justify-start]="m.role === 'bot'"
+          >
+            <div
+              class="max-w-[85%] rounded-2xl px-4 py-3"
+              [class.bg-sky-600]="m.role === 'user'"
+              [class.text-white]="m.role === 'user'"
+              [class.bg-slate-800]="m.role === 'bot'"
+              [class.text-slate-100]="m.role === 'bot'"
             >
-              Top-1
-            </span>
+              <div class="whitespace-pre-line leading-relaxed">
+                {{ m.text }}
+              </div>
+
+              <div
+                *ngIf="m.meta?.fn"
+                class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-300/80"
+              >
+                <span class="rounded-full bg-slate-700/60 px-2 py-0.5">
+                  fn: {{ m.meta?.fn }}
+                </span>
+                <span
+                  *ngIf="m.meta?.score !== undefined"
+                  class="rounded-full bg-slate-700/60 px-2 py-0.5"
+                >
+                  score: {{ m.meta?.score | number : "1.2-2" }}
+                </span>
+                <span
+                  *ngIf="m.meta?.source"
+                  class="rounded-full bg-slate-700/60 px-2 py-0.5"
+                >
+                  source: {{ m.meta?.source }}
+                </span>
+              </div>
+            </div>
           </div>
+        </ng-container>
+
+        <div *ngIf="loading" class="text-sm text-slate-400">
+          Escribiendo…
         </div>
       </div>
     </div>
 
+    <!-- Input -->
+    <div class="mt-4 flex gap-2">
+      <input
+        class="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-600"
+        placeholder="Escribe: 'quiero reservar un vuelo', 'de quito a guayaquil', '1', 'sí'..."
+        [(ngModel)]="input"
+        (keydown.enter)="send()"
+      />
+
+      <button
+        class="rounded-2xl bg-sky-600 px-5 py-3 font-medium text-white hover:bg-sky-500 disabled:opacity-50"
+        (click)="send()"
+        [disabled]="loading || !input.trim()"
+      >
+        Enviar
+      </button>
+    </div>
+
+    <p class="mt-2 text-xs text-slate-500">
+      Tip: cuando el bot te muestre opciones, responde con el número (ej: “1”).
+    </p>
   </div>
 </div>
